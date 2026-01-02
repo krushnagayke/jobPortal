@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 
-export const register = async (req, res) => {
+const register = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, password, role } = req.body;
         console.log("Request Body:", req.body);
@@ -56,7 +56,9 @@ export const register = async (req, res) => {
         console.log(error);
     }
 }
-export const login = async (req, res) => {
+
+
+const login = async (req, res) => {
     try {
         const { email, password, role } = req.body;
         
@@ -119,7 +121,9 @@ export const login = async (req, res) => {
         console.log(error);
     }
 }
-export const logout = async (req, res) => {
+
+
+const logout = async (req, res) => {
     try {
         return res.status(200).cookie("token", "", { maxAge: 0 }).json({
             message: "Logged out successfully.",
@@ -129,7 +133,9 @@ export const logout = async (req, res) => {
         console.log(error);
     }
 }
-export const updateProfile = async (req, res) => {
+
+
+const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
         
@@ -158,11 +164,21 @@ export const updateProfile = async (req, res) => {
             })
         }
         // updating data
-        if(fullname) user.fullname = fullname
-        if(email) user.email = email
-        if(phoneNumber)  user.phoneNumber = phoneNumber
-        if(bio) user.profile.bio = bio
-        if(skills) user.profile.skills = skillsArray
+        if(fullname) {
+            user.fullname = fullname
+        }
+        if(email) {
+            user.email = email
+        }
+        if(phoneNumber)  {
+            user.phoneNumber = phoneNumber
+        }
+        if(bio) {
+            user.profile.bio = bio
+        }
+        if(skills) {
+            user.profile.skills = skillsArray
+        }
       
         // resume comes later here...
         if(cloudResponse){
@@ -190,4 +206,60 @@ export const updateProfile = async (req, res) => {
     } catch (error) {
         console.log(error);
     }
+}
+
+// want to update password later
+const updatePassword = async (req, res) => {
+    const { oldPassword, password,newPassword ,email} = req.body;
+    try {
+        if (!oldPassword || !password || !newPassword , !email) {
+            return res.status(400).json({
+                message: "Something is missing",
+                success: false
+            });
+        }
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found.",
+                success: false
+            })
+        }
+
+        if (newPassword !== password) {
+            return res.status(400).json({
+                message: "New password and confirm password do not match.",
+                success: false
+            })
+        }
+        // check old password is correct or not
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Incorrect old password.",
+                success: false
+            })
+        }
+        // update new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        
+
+        return res.status(200).json({
+            message: "Password updated successfully.",
+            success: true
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export{
+    login,
+    register,
+    logout,
+    updateProfile,
+    updatePassword,
 }
