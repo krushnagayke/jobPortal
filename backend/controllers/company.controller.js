@@ -2,7 +2,8 @@ import { Company } from "../models/company.model.js";
 import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 
-export const registerCompany = async (req, res) => {
+
+const registerCompany = async (req, res) => {
     try {
         const { companyName } = req.body;
         if (!companyName) {
@@ -32,7 +33,8 @@ export const registerCompany = async (req, res) => {
         console.log(error);
     }
 }
-export const getCompany = async (req, res) => {
+
+const getCompany = async (req, res) => {
     try {
         const userId = req.id; // logged in user id
         const companies = await Company.find({ userId });
@@ -50,8 +52,10 @@ export const getCompany = async (req, res) => {
         console.log(error);
     }
 }
+
+
 // get company by id
-export const getCompanyById = async (req, res) => {
+const getCompanyById = async (req, res) => {
     try {
         const companyId = req.params.id;
         const company = await Company.findById(companyId);
@@ -69,7 +73,9 @@ export const getCompanyById = async (req, res) => {
         console.log(error);
     }
 }
-export const updateCompany = async (req, res) => {
+
+
+const updateCompany = async (req, res) => {
     try {
         const { name, description, website, location } = req.body;
  
@@ -97,4 +103,11 @@ export const updateCompany = async (req, res) => {
     } catch (error) {
         console.log(error);
     }
+}
+
+export {
+    registerCompany,
+    getCompany,
+    getCompanyById,
+    updateCompany
 }
